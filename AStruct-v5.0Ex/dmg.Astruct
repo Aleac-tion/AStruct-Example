@@ -1,0 +1,30 @@
+{
+[title]:template
+    {
+    [header]:dmgtable
+        {
+        atk=@array@[攻击力增幅,基础攻击力,基于白值直接提升]
+        atks=@array@[攻击力百分比增幅,攻击力百分比,提升白值百分比]
+        def=@array@[防御力削弱,防御力,削弱目标防御力百分比]
+        res=@array@[属性抗性,元素/物理抗性削弱,削弱目标抗性百分比]
+        up=@array@[伤害提升,造成的伤害,如元素提升伤害提升等]
+        masterup=@array@[反应伤害提升,元素反应,提升元素反应的百分比]
+        master=@array@[元素精通,元素精通,提升自身精通数值]
+        deathwithlife=@array@[死生之炉,伤害增幅,火神专属输入战意]
+        firework=@array@[红死之宴,平A和大招增幅,仆人专属]
+        }
+    }[]
+    {
+    [header]:gongzi
+        {
+        attack=4640.27||攻击力
+        skill_multi=9.86||伤害倍率
+        crit_dmg=3.716||暴击伤害
+        dmg_bonus=3.4816||伤害提升
+        mastery_bonus=3.5734||元素反应区
+        resistance_multi=1.4||抗性区
+        defense_multi=0.496084||防御力
+        }
+    }[]
+};
+
