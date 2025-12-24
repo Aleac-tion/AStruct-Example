@@ -1,0 +1,388 @@
+#include "Ptor.h"
+#include <QTableView>
+#include <QStandardItemModel>
+#include <QApplication>
+#include <QString> 
+#include <sstream>
+#include <string>
+#include <QFileDialog>
+#include <thread>
+#include <QMessageBox>
+#include <QAbstractItemModel> 
+#include <QInputDialog>
+#include <AleacLIB.h>
+#include <fcntl.h>
+#include <type_traits>
+#include <io.h>
+#include <iostream>
+#include <iomanip>
+#include <filesystem>
+#include <cmath>
+#include <AStruct.h>
+#pragma comment(lib,"AStruct.dll")
+
+int roundFloat(float num) {
+    return static_cast<int>(num + (num >= 0 ? 0.5f : -0.5f));
+}
+
+AStruct as;
+AStruct Why;
+
+bool hasfloat(float num) {
+    const float epsilon = 0.00001f;
+    float roundedNum = std::round(num);
+    return std::abs(roundedNum - num) > epsilon;
+}
+
+class files {
+private:
+    template<typename T>
+    struct is_qstring : std::false_type {};
+    template<>
+    struct is_qstring<QString> : std::true_type {};
+    template<typename T>
+    static inline constexpr bool is_qstring_v = is_qstring<T>::value;
+public:
+    template<typename T>
+    static void debug(const T& value) {
+        const std::string& title = "Debug Console";
+        auto threadFunc = [title, value]() {
+            // 1. 分配新控制台
+            if (!AllocConsole()) {
+                MessageBoxA(nullptr, "Failed to allocate console", "Error", MB_ICONERROR);
+                return;
+            }
+
+            SetConsoleTitleA(title.c_str());
+
+            FILE* fDummy;
+            freopen_s(&fDummy, "CONOUT$", "w", stdout);
+            freopen_s(&fDummy, "CONOUT$", "w", stderr);
+            freopen_s(&fDummy, "CONIN$", "r", stdin);
+
+            std::ios::sync_with_stdio(true);
+
+            SetConsoleOutputCP(CP_UTF8);
+
+            HWND hConsole = GetConsoleWindow();
+            if (hConsole) {
+
+                LONG exStyle = GetWindowLong(hConsole, GWL_EXSTYLE);
+                exStyle &= ~WS_EX_TOPMOST;
+                SetWindowLong(hConsole, GWL_EXSTYLE, exStyle);
+
+                SetWindowPos(hConsole, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+            }
+
+            std::cout << "Aleactional调试窗口支持模板" << "\n";
+
+            std::cout << "调试输出:";
+            if constexpr (is_qstring_v<std::decay_t<T>>) {
+                std::cout << value.toStdString() << "\n";
+            }
+            else {
+                std::cout << value << "\n";
+            }
+            FreeConsole();
+            };
+
+        std::thread t(threadFunc);
+        t.detach();
+    }
+};
+
+
+Ptor::Ptor(QWidget* parent)
+    : QWidget(parent)
+{
+    ui.setupUi(this);
+    this->setFixedSize(962, 897);
+    pillspath = readsaved(getcurrentDir() + "/pills.path").c_str();
+    ui.tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui.button_ini_list->setVisible(false);
+    model = new QStandardItemModel(0, 1);
+    model_pill_price = new QStandardItemModel(0, 3);
+    conf_model = new QStandardItemModel(0, 3);
+    model_pill_price->setHorizontalHeaderItem(0, new QStandardItem(u8"药名"));
+    model_pill_price->setHorizontalHeaderItem(1, new QStandardItem(u8"价格/RNB"));
+    model_pill_price->setHorizontalHeaderItem(2, new QStandardItem(u8"数量/片剂或针剂"));
+    conf_model->setHorizontalHeaderItem(0, new QStandardItem(u8"配置名"));
+    conf_model->setHorizontalHeaderItem(1, new QStandardItem(u8"备注"));
+    conf_model->setHorizontalHeaderItem(2, new QStandardItem(u8"时间"));
+    model->setHorizontalHeaderItem(0, new QStandardItem(u8"药物名"));
+    model->setHorizontalHeaderItem(1, new QStandardItem(u8"余量"));
+    model->setHorizontalHeaderItem(2, new QStandardItem(u8"价格"));
+    model->setHorizontalHeaderItem(3, new QStandardItem(u8"每盒量"));
+    model->setHorizontalHeaderItem(4, new QStandardItem(u8"日/次"));
+    model->setHorizontalHeaderItem(5, new QStandardItem(u8"次/量"));
+    ui.pillstable->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    ui.pillstable->setModel(model_pill_price);
+    ui.tableView_2->setModel(conf_model);
+    ui.tableView->setModel(model);
+    ui.tableView_2->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui.tableView_2->setSelectionMode((QAbstractItemView::SingleSelection));
+    ui.tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui.tableView->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui.tableView_2->horizontalHeader()->resizeSection(0, 280);
+    ui.tableView_2->horizontalHeader()->resizeSection(1, 251);
+    ui.tableView_2->horizontalHeader()->resizeSection(2, 150);
+    ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    ui.tableView->horizontalHeader()->resizeSection(0, 100);
+    ui.tableView->horizontalHeader()->resizeSection(1, 55);
+    ui.tableView->horizontalHeader()->resizeSection(2, 55);
+    ui.tableView->horizontalHeader()->resizeSection(3, 55);
+    ui.tableView->horizontalHeader()->resizeSection(4, 50);
+    ui.tableView->horizontalHeader()->resizeSection(5, 50);
+
+    as.loaddata("K:/QT_pro/AleacPtor/Ptor/x64/Debug/Config.Astruct");
+    Why.loaddata("K:/LIB/AStruct/errorlist.Astruct");
+    on_button_ini_list_clicked();
+}
+
+void Ptor::getini(const QString& path) {
+
+    //旧版本被AStruct替代无需实现了
+}
+
+void Ptor::updatepilltable() {
+    ui.view_pills_quan->setText(std::to_string(model_pill_price->rowCount()).c_str());
+}
+
+void Ptor::on_button_readsaved_clicked() {
+    qst_path = QFileDialog::getOpenFileName(this, tr("Open File"), "");
+    AStruct temps;
+    temps.loaddata(qst_path.toStdString());
+    as.loaddata(temps.getvalue("路径", "存储路径", "默认路径"));
+    on_button_ini_list_clicked();
+}
+
+void Ptor::on_button_ini_list_clicked() {
+    list = AList::autoparse(AStruct::parseArray(as.getvalue("药物列表", "精神药物", "name")));
+    string temp;
+    for (int i = 0; i < list.size(); i++) {
+        for (int c = 0; c < list[i].Go().size(); c++) {
+            temp = list[i].Go()[c];
+            model->setItem(i, c, new QStandardItem(temp.c_str()));
+        }
+    }
+}
+
+void Ptor::on_tableView_clicked(const QModelIndex& index) {
+    if (islocked == true) {
+        current_selection_turn = index.row();
+        QItemSelectionModel* selectionModel = ui.tableView->selectionModel();
+        QModelIndexList selectedIndexes = selectionModel->selectedRows();
+        int selectedRow = selectedIndexes.isEmpty() ? -1 : selectedIndexes.first().row();
+        select_turn = selectedRow;
+        int rowCount = model_pill_price->rowCount();
+        QModelIndex pillname_table = model->index(select_turn, 0);
+        QVariant pillname_data = model->data(pillname_table, Qt::DisplayRole);
+        QModelIndex pillprice_table = model->index(select_turn, 2);
+        QVariant pillprice_data = model->data(pillprice_table, Qt::DisplayRole);
+        QString pillNameQString = pillname_data.toString();
+        QString pillPriceQString = pillprice_data.toString();
+        string pillNameStdStr = pillNameQString.toStdString();
+        string pillPriceStdStr = pillPriceQString.toStdString();
+
+        bool alreadyExists = false;
+
+        for (int i = 0; i < rowCount; ++i) {
+            QModelIndex check_name_table = model_pill_price->index(i, 0);
+            if (check_name_table.isValid()) {
+                QVariant check_name_data = model_pill_price->data(check_name_table, Qt::DisplayRole);
+                std::string compare_a = check_name_data.toString().toStdString();
+                if (compare_a == pillNameStdStr) {
+                    alreadyExists = true;
+                    break;
+                }
+            }
+            else {
+            }
+        }
+        if (!alreadyExists) {
+            model_pill_price->setItem(rowCount, 0, new QStandardItem(pillNameQString));
+            model_pill_price->setItem(rowCount, 1, new QStandardItem(pillPriceQString));
+            model_pill_price->setItem(rowCount, 2, new QStandardItem(" "));
+            updatepilltable();
+
+        }
+        else {
+            QMessageBox::information(nullptr, "警告！", "选择项目不得重复!");
+        }
+    }
+}
+
+void Ptor::on_button_clear_clicked() {
+    model_pill_price->setRowCount(0);
+    updatepilltable();
+
+}
+
+void Ptor::on_button_addon_clicked() {
+    {
+        model->setItem(model->rowCount(), 0, new QStandardItem("待处理"));
+        model->setItem(model->rowCount() - 1, 1, new QStandardItem("1.0"));
+        model->setItem(model->rowCount() - 1, 2, new QStandardItem("1.0"));
+        model->setItem(model->rowCount() - 1, 3, new QStandardItem("1.0"));
+        model->setItem(model->rowCount() - 1, 4, new QStandardItem("1.0"));
+        model->setItem(model->rowCount() - 1, 5, new QStandardItem("1.0"));
+    }
+}
+
+void Ptor::on_button_delpill_clicked() {
+    AList tlist;
+    QModelIndex pillname_table = model->index(select_turn, 0);
+    QVariant pillname_data = model->data(pillname_table, Qt::DisplayRole);
+    vector<string> vec;
+    for (int i = 0; i < list.size(); i++) {
+        if (!searchtext(pillname_data.toString().toStdString().c_str(), list[i].Go()[0])) {
+            vec.push_back(list[i]);
+        }
+    }
+    for (const string& cur : vec) {
+        tlist << cur;
+    }
+
+    as.changeValue("药物列表", "精神药物", "name", tlist.toArray());
+
+}
+
+void Ptor::on_button_locktable_clicked() {
+    if (islocked == true) {
+        islocked = false;
+        ui.button_locktable->setText("锁定配置");
+        ui.tableView->setEditTriggers(QAbstractItemView::DoubleClicked);
+    }
+    else {
+
+        islocked = true;
+        ui.button_locktable->setText("取消锁定");
+        ui.tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        trigger_save();
+    }
+}
+
+void Ptor::trigger_save() {
+    AList plist;
+    std::vector<std::string> vec_row;
+    std::vector<std::string> vec;
+    for (int i = 0; i < model->rowCount(); i++) {
+
+        for (int c = 0; c < model->columnCount(); c++) {
+            QModelIndex pill_table = model->index(i, c);
+            QVariant  pill_data = model->data(pill_table, Qt::DisplayRole);
+            vec_row.push_back(pill_data.toString().toStdString());
+        }
+
+    }
+
+    for (int i = 0; i < vec_row.size(); i++) {
+        plist << vec_row[i];
+        if ((i + 1) % 6 == 0 || i == vec_row.size() - 1) {
+            vec.push_back(plist.toArray());
+            plist.free();
+        }
+    }
+
+    as.changeValue("药物列表", "精神药物", "name", plist.toArray());
+
+}
+
+void Ptor::on_button_onemoon_clicked() {
+    if (model_pill_price->rowCount() == 0)return;
+    float preprice = 0;
+    std::vector<std::string> vec_need;
+    std::vector<float> vec_comput;
+    AList pl;
+    for (int i = 0; i < model->rowCount(); i++) {
+        for (int c = 0; c < model_pill_price->rowCount(); c++) {
+            QModelIndex pre_pill_table = model_pill_price->index(i, 0);
+            QModelIndex pill_table = model->index(c, 0);
+            QVariant pre_pill_data = model_pill_price->data(pre_pill_table, Qt::DisplayRole);
+            QVariant pill_data = model->data(pill_table, Qt::DisplayRole);
+
+            if (pre_pill_data.toString() == pill_data.toString()) {
+                QModelIndex totol_table = model->index(i, 1);
+                QModelIndex price_table = model->index(i, 2);
+                QModelIndex per_table = model->index(i, 3);
+                QModelIndex day_table = model->index(i, 4);
+                QModelIndex times_table = model->index(i, 5);
+
+                QVariant totol_data = model->data(totol_table, Qt::DisplayRole);
+                QVariant price_data = model->data(price_table, Qt::DisplayRole);
+                QVariant per_data = model->data(per_table, Qt::DisplayRole);
+                QVariant day_data = model->data(day_table, Qt::DisplayRole);
+                QVariant times_data = model->data(times_table, Qt::DisplayRole);
+
+                //pl <<"药物名:"<< pre_pill_data.toString().toStdString()<<"药物总量:"<<totol_data.toString().toStdString() <<"药物次数:" << times_data.toFloat();
+                float daily_need = day_data.toFloat() * times_data.toFloat();
+                float monthly_need = daily_need * 30;
+                float need_real = monthly_need - totol_data.toFloat();
+
+
+                QString finaldata;
+                if (need_real <= 0) {
+                    finaldata = "不需要购买";
+                }
+                else {
+                    float per_count = per_data.toFloat();
+                    int need_box = (per_count > 0) ? std::ceil(need_real / per_count) : 0;
+                    preprice = preprice + (price_data.toFloat() * need_box);
+                    finaldata = QString("约%1盒(%2片)").arg(need_box).arg(need_real);
+                }
+
+
+                pl << "药物名:" << pre_pill_data.toString().toStdString()
+                    << "药物总量:" << totol_data.toString().toStdString()
+                    << "药物次数:" << times_data.toFloat()
+                    << "月需量:" << monthly_need
+                    << "需购买:" << finaldata.toStdString()
+                    << "金额:" << preprice;
+
+
+                model_pill_price->setItem(c, 2, new QStandardItem(finaldata));
+                ui.view_price->setText(std::to_string(preprice).c_str());
+            }
+        }
+
+    }
+    float reimbursementRate = 0.95f;
+    float amountAfterInsurance = preprice * (1 - reimbursementRate);
+    ui.view_medicalir_price->setText(QString::number(amountAfterInsurance));
+
+}
+
+void Ptor::on_button_del_clicked() {
+    QModelIndex curr_index = ui.pillstable->currentIndex();
+    model_pill_price->removeRow(curr_index.row());
+    updatepilltable();
+}
+
+void Ptor::on_button_time_clicked() {
+    for (int i = 0; i < model->rowCount(); i++) {
+        //药物名 数量 每盒价格 每盒数量 日 次
+        QModelIndex name_table = model->index(i, 0);
+        QVariant name_data = model->data(name_table, Qt::DisplayRole);
+        //获取目前药物名称
+        QModelIndex pill_quan_table = model->index(i, 1);
+        QVariant pill_quan_data = model->data(pill_quan_table, Qt::DisplayRole);
+        //获取药物数量
+        QModelIndex day_table = model->index(i, 4);
+        QVariant day_data = model->data(day_table, Qt::DisplayRole);
+        //获取药物每日次数
+        QModelIndex pill_num_table = model->index(i, 5);
+        QVariant pill_num_data = model->data(pill_num_table, Qt::DisplayRole);
+        //获取药物每次数量
+        std::ostringstream oss;
+
+        float ever_quan = std::stof(day_data.toString().toStdString()) * std::stof(pill_num_data.toString().toStdString());
+        int left_day = std::stof(pill_quan_data.toString().toStdString()) / ever_quan;
+        oss << name_data.toString().toStdString() << "还剩:" << pill_quan_data.toString().toStdString() << "片,还可服用" << std::to_string(left_day) << "天";
+        QMessageBox::information(nullptr, "title", oss.str().c_str());
+    }
+}
+
+
+Ptor::~Ptor()
+{
+}
