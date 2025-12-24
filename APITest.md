@@ -56,6 +56,7 @@ AStruct模型（异步零阻塞）
 - 内存修改: 100 × 7.4μs = 740μs
 - 队列入队: 100 × 1μs = 100μs
 - 异步通知: 100 × 0.1μs = 10μs
+```
 
 # API Performance Test
 ## System Stress Environment
