@@ -4,6 +4,8 @@
 因为我需要多开5~8个vs2022,副屏幕开着虚拟机进行测试在另一个电脑的运行参数以及ollama DeepSeek-R1:32B
 并没有在纯实验状态测试性能,以现实生产环境测试
 
+*AStruct Format:*
+```AStruct
 loaddata() ~60us
 第一次getvalue() ~10us
 缓存命中的getvalue ~400纳秒
