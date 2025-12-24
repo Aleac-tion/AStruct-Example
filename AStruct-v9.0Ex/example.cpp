@@ -1,3 +1,4 @@
+//æ¨¡æ‹ŸDiitoçš„æ ¸å¿ƒåŠŸèƒ½ä½œä¸ºexampleï¼
 #include "AleaCOPY.h"
 #include <AStruct.h>
 #pragma comment(lib,"AStruct.lib")
@@ -29,19 +30,19 @@ AleaCOPY::AleaCOPY(QWidget* parent)
     this->setWindowFlags(this->windowFlags() | Qt::WindowStaysOnTopHint);
     trayIcon->setToolTip("AleacCopyBoard");
     QMenu* trayIconMenu = new QMenu(this);
-    QAction* restoreAction = new QAction("ÏÔÊ¾ÄÚÈİ", this);
-    QAction* quitAction = new QAction("ÍË³ö", this);
+    QAction* restoreAction = new QAction("æ˜¾ç¤ºå†…å®¹", this);
+    QAction* quitAction = new QAction("é€€å‡º", this);
     trayIconMenu->addAction(restoreAction);
     trayIconMenu->addAction(quitAction);
     trayIcon->setContextMenu(trayIconMenu);
     trayIcon->show();
     connect(restoreAction, &QAction::triggered, [=]() {
-        this->show();                    // ÏÔÊ¾Ö÷´°¿Ú
-        this->activateWindow();          // ¼¤»î´°¿Ú£¨»ñµÃ½¹µã£©
+        this->show();                    // æ˜¾ç¤ºä¸»çª—å£
+        this->activateWindow();          // æ¿€æ´»çª—å£ï¼ˆè·å¾—ç„¦ç‚¹ï¼‰
         });
     connect(quitAction, &QAction::triggered, [=]() {
-        // ¿ÉÑ¡£ºµ¯³öÈ·ÈÏ¶Ô»°¿ò
-        int ret = QMessageBox::question(this, "È·ÈÏ", "È·¶¨ÒªÍË³öÂğ£¿",
+        // å¯é€‰ï¼šå¼¹å‡ºç¡®è®¤å¯¹è¯æ¡†
+        int ret = QMessageBox::question(this, "ç¡®è®¤", "ç¡®å®šè¦é€€å‡ºå—ï¼Ÿ",
             QMessageBox::Yes | QMessageBox::No);
         if (ret == QMessageBox::Yes) {
             QApplication::quit();
@@ -50,7 +51,7 @@ AleaCOPY::AleaCOPY(QWidget* parent)
     ui.tableView->setModel(model);
 
     ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-    model->setHorizontalHeaderItem(0, new QStandardItem(u8"±à¼­Õ³Ìù°åÀúÊ·¼ÇÂ¼"));
+    model->setHorizontalHeaderItem(0, new QStandardItem(u8"ç¼–è¾‘ç²˜è´´æ¿å†å²è®°å½•"));
     ui.tableView->horizontalHeader()->resizeSection(0, 331);
     ui.tableView->setSelectionMode(QAbstractItemView::SingleSelection);
     ui.tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -78,12 +79,12 @@ void AleaCOPY::on_button_copy_clicked() {
 
 void AleaCOPY::on_button_edit_clicked() {
     QWidget* tempWindow = new QWidget(nullptr, Qt::Window);
-    tempWindow->setWindowTitle("±à¼­Æ÷");
+    tempWindow->setWindowTitle("ç¼–è¾‘å™¨");
     tempWindow->resize(789, 544);
 
     QVBoxLayout* layout = new QVBoxLayout(tempWindow);
 
-    QLabel* label = new QLabel("´ËÎª±à¼­ÄÚÈİ´°¿Ú", tempWindow);
+    QLabel* label = new QLabel("æ­¤ä¸ºç¼–è¾‘å†…å®¹çª—å£", tempWindow);
     label->setAlignment(Qt::AlignCenter);
 
     QTextEdit* textEdit = new QTextEdit(tempWindow);
@@ -91,7 +92,7 @@ void AleaCOPY::on_button_edit_clicked() {
     textEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
 
-    QPushButton* overEditBtn = new QPushButton("Íê³É±à¼­", tempWindow);
+    QPushButton* overEditBtn = new QPushButton("å®Œæˆç¼–è¾‘", tempWindow);
     overEditBtn->setFixedHeight(51);
 
     layout->addWidget(textEdit);
@@ -110,7 +111,7 @@ void AleaCOPY::on_button_edit_clicked() {
         tempWindow->setAttribute(Qt::WA_DeleteOnClose);
     }
     else {
-        QMessageBox::information(this, "´íÎó£¡", "ÇëÑ¡ÔñÒ»¸öÄÚÈİ£¡");
+        QMessageBox::information(this, "é”™è¯¯ï¼", "è¯·é€‰æ‹©ä¸€ä¸ªå†…å®¹ï¼");
     }
     QObject::connect(overEditBtn, &QPushButton::clicked, [=]() {
         QModelIndex selectedIndex = selectedIndexes.first();
@@ -123,7 +124,7 @@ void AleaCOPY::on_button_edit_clicked() {
 
 void AleaCOPY::doSomethingFromUI() {
 
-    //Êµ¼ÊÉÏÂß¼­Ôç±»AStruct×ªÒÆ¼ò»¯£¬ÎŞÓÃ
+    //å®é™…ä¸Šé€»è¾‘æ—©è¢«AStructè½¬ç§»ç®€åŒ–ï¼Œæ— ç”¨
 }
 
 void AleaCOPY::on_button_delete_clicked() {
