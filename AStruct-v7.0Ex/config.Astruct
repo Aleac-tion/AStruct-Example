@@ -1,0 +1,26 @@
+{
+[title]:base
+    {
+    [header]:config
+        {
+        ico=:::/asset/ico.png
+        cl=@array@[J:\vsIDE,J:\vsIDE\VC\Tools\MSVC\14.44.35207\bin\Hostx64\x64\cl.exe,J:\vsIDE\VC\Auxiliary\Build\vcvarsall.bat]
+        }
+    }[]
+    {
+    [header]:currentpath
+        {
+        rootpath=:::\project
+        outpath=:::\project\final_out
+        }
+    }[]
+    {
+    [header]:template
+        {
+        Standard=:::\asset\template\setupscript.Alee
+        Standard_config=:::\asset\template\setup.Astruct
+        Standard_dll=:::\asset\template\style.cpp
+        Standard_bytearray=:::\asset\template\bytecodes.cpp
+        }
+    }[]
+};
