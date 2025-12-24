@@ -1,0 +1,195 @@
+AStruct Usage Guide - v9.0 (English)
+Usage (Include)
+cpp
+#include <AStruct.h>
+#pragma comment(lib, "AStruct.lib")
+Basic Usage
+cpp
+AStruct as; // Instantiate
+as.loaddata("xxx/xxx/config.Astruct"); // Supports both / and \
+Example document content:
+
+text
+{
+[title]:A
+    {
+    [header]:B
+        {
+        key=value
+        keys=@array@[@array@[A,B],C]
+        }
+    }[]
+};
+Create key_a=value:
+
+cpp
+as.addkey("A", "B", "key_a");
+Get value:
+
+cpp
+as.getvalue("A", "B", "key");
+Want automation?
+
+cpp
+as.getvalue("A", 0, "key");
+Modify value:
+
+cpp
+as.changevalue("A", "B", "key", "your_new_value");
+Delete value:
+
+cpp
+as.delkey("A", "B", "key");
+Super Array
+Need to store complex elements? Use Super Array!
+
+Example struct:
+
+cpp
+struct Player_data {
+    int hp = 100;
+    std::string name = "player";
+    int atk = 50;
+};
+Create:
+
+cpp
+auto data = "@array@[" + std::to_string(Player_data.hp) + 
+            Player_data.name + 
+            std::to_string(Player_data.atk) + "]";
+as.changevalue("A", "B", "keys", data);
+Parse:
+
+cpp
+std::vector<std::string> vec = AStruct::parseArray(as.getvalue("A", "B", "keys"));
+AList
+Super Arrays too cumbersome? Use AList!
+
+Construction:
+
+cpp
+AList list;
+list << Player_data.hp << Player_data.name << Player_data.atk; // Type deduction included
+as.changevalue("A", "B", "keys", list.toArray());
+Parsing:
+
+cpp
+list = AList::autoparse(as.getvalue("A", "B", "keys"));
+std::cout << list[0]; // Outputs hp
+Store multiple player records with nesting:
+
+cpp
+Player_data p1, p2;
+p1.hp = 100;
+p2.hp = 100;
+// ... fill other fields
+
+list << (AList() << p1.hp << p1.name << p1.atk)
+     << (AList() << p2.hp << p2.name << p2.atk);
+std::cout << list.toArray();
+// Result: @array@[@array@[100,p1,50],@array@[100,p2,50]]
+Tired of manual storage? Use operator overloading!
+
+cpp
+std::ostream& operator<<(std::ostream& os, const Player_data& datas) {
+    return os << (AList() << datas.hp << datas.name << datas.atk).toArray();
+}
+// Overloading is part of C++ static compilation. If there's an error, 
+// AList won't compile normally, so VS2022 helps with runtime checking.
+Now you can:
+
+cpp
+list << p1 << p2;
+// Result: @array@[@array@[100,p1,50],@array@[100,p2,50]]
+How to parse this complex structure?
+
+cpp
+std::cout << list[0].Go()[0]; // Outputs the first element (100) of the first nested array. Supports infinite recursion!
+Encryption
+Features built-in 2-level routing and automatic navigation. Simply copy the DLL to your directory. Uses AES256 with AES-NI acceleration for extremely high speeds.
+
+cpp
+AleaCook cooks(&as);
+// Destructor triggers AES256 encryption, changing .Astruct to .alcst
+// Encryption lock activates, disabling [async decoupled IO mutual-exclusion writes]
+How to use encrypted code? Decrypt!
+(Note: as must have the .Astruct suffix.)
+
+cpp
+as.UnCook();
+as.getvalue("A", "B", "key");
+as.changevalue("A", "B", "key", "test");
+// Upon destruction, it automatically unlocks, writes the encryption, and calls FreeLibrary
+Want the original text?
+
+cpp
+as.Purity(); // Outputs decrypted plaintext to the original AStruct location
+Note: Encryption capacity is approximately half your RAM (e.g., 32GB for 64GB total). If you exceed this, consider distributed calls using ::: paths.
+
+Example distributed usage:
+
+text
+D:/CPP/AStruct/config/a.Astruct;
+                     /b.Astruct;
+cpp
+as.loaddata("D:/CPP/AStruct/config/a.Astruct");
+// Assuming a key like: key=:::/b.Astruct;
+AleaCook a(&as);
+a.Cook();
+as.loaddata(a.getvalue("A", "B", "key")); 
+// Automatically resolves :::/ to "D:/CPP/AStruct/config/a.Astruct"
+Mastering the above means you've grasped the basics (10% of AStruct). Automatically serializing an entire Unreal Engine 5 project means you've mastered about 30%!
+
+Advanced Part 1
+Automation and iteration giving you trouble? Use overloaded functions:
+
+as.getvalue("A", "B", "key"); can also be used as:
+
+as.getvalue("A", "B", 0); Points to the corresponding position.
+
+as.getvalue("A", 0, 0); Automatically points to "B", "key".
+
+Need size information? Use getKeyCount:
+
+cpp
+as.getKeyCount("A", "B"); // Returns int (e.g., 2)
+for(int i = 0; i < as.getKeyCount("A", "B"); i++) {
+    std::cout << as.getvalue("A", "B", i) << std::endl;
+}
+You can also nest loops:
+
+cpp
+for(int i = 0; i < as.getHeaderCount("A"); i++) {
+    for(int c = 0; c < as.getKeyCount("A", i); c++) {
+        std::cout << as.getvalue("A", i, c) << std::endl;
+    }
+}
+Super Paths
+Worried about complex text breaking the format? Super Paths can help, using ::::/ as the identifier.
+Example: key=::::/config/as.Astruct;
+When getvalue reads ::::, it automatically memory-maps and reads as.Astruct. ::: is a fusion of :/ (path reading) and path completion.
+
+Want to generate a Super Path without storing first?
+
+cpp
+changevalue("A", "B", "key", "very_long_text", "config/as.Astruct");
+// Result: key=::::/config/as.Astruct;
+// The "very_long_text" is saved to the specified path.
+Using :::/ for resources:
+
+text
+{
+[title]:system
+    {
+    [header]:asset
+        {
+        ui=:::/xxx.png
+        sound=:::/xxx.mp3
+        }
+    }[]
+}
+cpp
+AStruct mains;
+mains.getvalue("system", "asset", "ui");
+mains.getvalue("system", "asset", "sound");
+More secrets await your exploration!

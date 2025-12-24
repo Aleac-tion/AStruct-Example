@@ -1,0 +1,161 @@
+AStruct使用守则-V9.0-中文
+用法包含
+#include <AStruct.h>
+#pragma comment(lib,"AStruct.lib")
+------------------------------------------------------
+常规用法
+AStruct as;//实例化
+as.loaddata("xxx/xxx/config.Astruct");//使用/\均可自动推导
+文档内容
+{ 
+[title]:A
+	{
+	[header]:B
+		{
+		key=value
+		keys=@array@[@array@[A,B],C]
+		}
+	}[]
+};
+创建key_a=value?
+as.addkey("A","B","key_a");
+
+获取value?
+as.getvalue("A","B","key");
+
+想要自动化吗?
+as.getvalue("A",0,"key");
+
+修改value?
+as.changevalue("A","B","key","你想要的");
+
+删除value?
+as.delkey("A","B","key");
+
+---------------------超级数组---------------------
+想要存储复杂元素吗，用超级数组！
+如struct Player_data
+	{
+	int hp = 100;
+	string name = player;
+	int atk = 50;
+	};
+
+创建?
+auto data ="@array@[" + std::to_string(Player_data.hp)
++ name + std::to_string(Player_data.atk)+"]";
+as.changevalue("A","B","keys",data);
+
+想要解析吗?
+std::vector<std::string> vec = AStruct::parseArray(as.getvalue("A","B","keys"));
+---------------------------AList篇章---------------------------------------------------------
+超级数组太麻烦? 使用AList！
+构造
+AList list;
+list << Player_data.hp << Player_data.name << Player_data.atk;//具备类型推导哦
+as.changevalue("A","B","keys",list.toArray());
+
+解析
+list = AList::autoparse(as.getvalue("A","B","keys"));
+cout << list[0] //输出hp
+
+想要存储多个玩家数据吗? 用嵌套
+Player_data p1,p2;
+p1.hp = 100;
+p2.hp = 100;
+依次填充.....
+list << (AList() << p1.hp << p1.name << p1.atk)
+	 << (AList() << p2.hp << p2.name << p2.atk);
+cout << list.toArray();
+//结果是 @array@[@array@[100,p1,50],@array@[100,p2,50]]
+
+存储太累了吗？用重载！
+ostream& operator<<(ostream& os, const Player_data& datas) {
+return os << (AList() << datas.hp << datas.name << datas.atk).toArray();
+}
+//重载属于C++本体静态编译类型化,所以如果过程出错AList无法正常编译因此vs2022帮你运行时检查了无需管理
+接下来你就可以
+list << p1 << p2;
+//结果也是 @array@[@array@[100,p1,50],@array@[100,p2,50]]
+
+如何解析这个复杂的东西呢?
+cout << list[0].Go[0]//输出数组的第一个数组嵌套下的第一个元素也就是100依此类推可无限递归！
+--------------------------加密------------------------------------------
+自带2级路由，自动导航无需任何干预只需要将动态链接库复制到目录即可
+因为是AES256加密自带AES-NI加速预热,速度极高
+AleaCook cooks(&as);
+析构时会触发一次AES256加密,原文件名Astruct会变为alcst
+此时会开启加密锁无法触发[异步解耦IO互斥写入]
+
+如何正常调用加密代码呢? 解密！
+注意as必须后缀名为.Astruct哦
+as.UnCook();
+as.getvalue("A","B","key");
+as.changevalue("A","B","key","test");
+此时析构后会自动解锁然后写入加密然后自动FreeLibrary
+
+想要知道原文？
+as.Purity();
+会将解密后的原文输出到AStruct原地址
+注意加密相当于你的内存的一半如
+一次性可加密的内存=32GB ( 64GB/2 )
+如果超过上限建议分布式调用哦可以充分利用:::比如
+D:/CPP/AStruct/config/a.Astruct;
+					 /b.Astruct;
+as.loaddata("D:/CPP/AStruct/config/a.Astruct");
+其中假设有一个 key=:::/b.Astruct;
+AleaCook a(&as);
+a.Cook();
+as.loaddata(a.getvalue("A","B","key"));
+//自动将:::/推到为"D:/CPP/AStruct/config/a.Astruct"
+
+-----------以上学完你就掌握了入门(10%的AStruct用法)当你能全自动序列化虚幻5整体你就掌握了30%了----------------------
+
+-----------进阶篇1-------------
+是否觉得不够自动化无法for遍历？你可以用重载函数来实现
+as.getvalue("A","B","key");可以使用
+as.getvalue("A","B",0);他们会指向对应的位置
+as.getvalue("A",0,0);则会自动指向"B" "key"
+
+你是否在为没有size而烦恼？使用getKeyCount
+as.getKeyCount("A","B");返回int，按照逻辑会返回2此时你可以
+for(int i=0;i<as.getKeyCount("A","B");i++)
+{
+	std::cout<<as.getvalue("A",B,i)<<std::endl; 
+}
+同时你也可以
+for(int i =0;i<as.getHeaderCount("A");i++)
+{
+	for(int c =0;c<as.getKeyCount("A",i);c++)
+	{
+		std::cout << as.getvalue("A",i,c)<<std::endl;
+	}
+}
+-----------------------超级路径-------------------
+是否还在担心过于复杂的文本破坏格式呢？超级路径可以帮你由::::/为标识符
+如 key=::::/config/as.Astruct;
+当getvalue读到::::就会自动用内存映射读取as.Astruct哦:::是:/的融合版本，:/是代表着读取路径，而:::是路径补充
+当::: :/组合为::::/就会形成:::自动补全路径:/自动读取目标文件，同时会将内容并入到缓存和内存中因此可以缓存命中
+
+是否在思考如果生成超级路径呢？难道要先存储再路径吗？错
+changevalue("A","B","key","超长文本","config/as.Astruct");
+key=::::/config/as.Astruct;
+而"超长文本"将会保存到指定路径哦
+
+同时在:::/的利用下如
+{
+[title]:system
+	{
+	[header]:asset
+		{
+		ui=:::/xxx.png
+		sound=:::/xxx.mp3
+		}
+	}[]
+}
+AStruct mains;
+mains.getvalue("system","asset","ui");
+mains.getvalue("system","asset","sound");
+
+
+更多秘密请自己探索吧！
