@@ -1,59 +1,61 @@
 # The English content is below the text, please scroll down.
-# ²âÊÔAPIÐÔÄÜ
-## ÏµÍ³Ñ¹Á¦»·¾³
-# **½ø³ÌÊý**: 362
-# **Ïß³ÌÊý**: 7890
-# **¾ä±úÊý**: 199,431
-# **²¢·¢Ó¦ÓÃ**: Èü²©Åó¿Ë2077+ Ô­Éñ+ 12¸öEdgeä¯ÀÀÆ÷ + ²»µÈ
-# **SSD×´Ì¬**: ÑÏÖØÕùÓÃ
-# ²âÊÔÓ²¼þ I9-13900KF 7100MB/S-M.2
+# æµ‹è¯•APIæ€§èƒ½
+## ç³»ç»ŸåŽ‹åŠ›çŽ¯å¢ƒ
+# **è¿›ç¨‹æ•°**: 362
+# **çº¿ç¨‹æ•°**: 7890
+# **å¥æŸ„æ•°**: 199,431
+# **å¹¶å‘åº”ç”¨**: èµ›åšæœ‹å…‹2077+ åŽŸç¥ž+ 12ä¸ªEdgeæµè§ˆå™¨ + ä¸ç­‰
+# **SSDçŠ¶æ€**: ä¸¥é‡äº‰ç”¨
+# æµ‹è¯•ç¡¬ä»¶ I9-13900KF 7100MB/S-M.2
 
-cpp
-// ²âÊÔ1: »ù´¡¶ÁÈ¡ÐÔÄÜ£¨Ê×´Î+»º´æ£©
+
+*CPP:*
+```AStruct
+// æµ‹è¯•1: åŸºç¡€è¯»å–æ€§èƒ½ï¼ˆé¦–æ¬¡+ç¼“å­˜ï¼‰
 for(int i=0; i<100; i++) {
-    as.getvalue("T","A",std::to_string(i));  // Ê×´Î¶ÁÈ¡: 525¦Ìs/100´Î
+    as.getvalue("T","A",std::to_string(i));  // é¦–æ¬¡è¯»å–: 525Î¼s/100æ¬¡
 }
-for(int i=0; i<100; i++) {                   // »º´æÃüÖÐ: 8¦Ìs/100´Î
+for(int i=0; i<100; i++) {                   // ç¼“å­˜å‘½ä¸­: 8Î¼s/100æ¬¡
     as.getvalue("T","A",std::to_string(i));
 }
 
-// ²âÊÔ2: ³¤keyÐÔÄÜÑéÖ¤
-for(int i=0; i<100; i++) {                   // ³¤keyÊ×´Î: 952¦Ìs/100´Î
+// æµ‹è¯•2: é•¿keyæ€§èƒ½éªŒè¯
+for(int i=0; i<100; i++) {                   // é•¿keyé¦–æ¬¡: 952Î¼s/100æ¬¡
     as.getvalue("T","A",std::to_string(i)+"long_txt_key_test");
 }
-for(int i=0; i<100; i++) {                   // ³¤key»º´æ: 11¦Ìs/100´Î
+for(int i=0; i<100; i++) {                   // é•¿keyç¼“å­˜: 11Î¼s/100æ¬¡
     as.getvalue("T","A",std::to_string(i)+"long_txt_key_test");
 }
 
-// ²âÊÔ3: ´¿ÄÚ´æÐÞ¸ÄÐÔÄÜ
-as.addkey("T","A","key","value");           // addkey: 10¦Ìs/´Î
-for(int i=0; i<100; i++) {                   // 100´ÎÐÞ¸Ä: 753¦Ìs×ÜºÄÊ±
+// æµ‹è¯•3: çº¯å†…å­˜ä¿®æ”¹æ€§èƒ½
+as.addkey("T","A","key","value");           // addkey: 10Î¼s/æ¬¡
+for(int i=0; i<100; i++) {                   // 100æ¬¡ä¿®æ”¹: 753Î¼sæ€»è€—æ—¶
     as.changeValue("T","A","key",std::to_string(i));
 }
 
-// ²âÊÔ4: ´øÎÄ¼þ±£´æµÄ¼«ÏÞ²âÊÔ
-for(int i=0; i<100; i++) {                   // ×î»µÇé¿ö: ´¥·¢200´ÎÎÄ¼þÐ´Èë(100´ÎÐÞ¸Ä´æµµ+100´Î³¬¼¶Â·¾¶ÎÄ±¾)
+// æµ‹è¯•4: å¸¦æ–‡ä»¶ä¿å­˜çš„æžé™æµ‹è¯•
+for(int i=0; i<100; i++) {                   // æœ€åæƒ…å†µ: è§¦å‘200æ¬¡æ–‡ä»¶å†™å…¥(100æ¬¡ä¿®æ”¹å­˜æ¡£+100æ¬¡è¶…çº§è·¯å¾„æ–‡æœ¬)
     as.changeValue("T","A","key",std::to_string(i),
                    "configs/"+std::to_string(i)+".txt",true);
 }
-as.getvalue("T","A","key");                  // ×îÖÕÑéÖ¤: Êä³ö"99"
-                                             // 1026¦Ìs×ÜºÄÊ±
+as.getvalue("T","A","key");                  // æœ€ç»ˆéªŒè¯: è¾“å‡º"99"
+                                             // 1026Î¼sæ€»è€—æ—¶
 
-                                             // ºóÌ¨ÒÔvs2026¼àÊÓ´ó¸ÅÏûºÄÁË10Ãë
-                                             ÓÉÓÚÎÒÄÚ´æÆµÂÊ½ÏµÍ3600mhzºÍIO±»´óÁ¿×èÈû£¬Ê±³¤¿ÖÅÂ²»×¼
-                                             µ«Ç°Ì¨ÈÔÈ»Ö»ÓÐ1026usµÄ¸ÐÖª
+                                             // åŽå°ä»¥vs2026ç›‘è§†å¤§æ¦‚æ¶ˆè€—äº†10ç§’
+                                             ç”±äºŽæˆ‘å†…å­˜é¢‘çŽ‡è¾ƒä½Ž3600mhzå’ŒIOè¢«å¤§é‡é˜»å¡žï¼Œæ—¶é•¿ææ€•ä¸å‡†
+                                             ä½†å‰å°ä»ç„¶åªæœ‰1026usçš„æ„ŸçŸ¥
 
-// ²âÊÔ5: ÅúÁ¿´´½¨²âÊÔ
-for(int i=0; i<100; i++) {                   // 100´Îaddkey: 1000¦Ìs
+// æµ‹è¯•5: æ‰¹é‡åˆ›å»ºæµ‹è¯•
+for(int i=0; i<100; i++) {                   // 100æ¬¡addkey: 1000Î¼s
     as.addkey("T","A",std::to_string(i),std::to_string(i));
 }
 
-AStructÄ£ÐÍ£¨Òì²½Áã×èÈû£©
-ÓÃ»§¸ÐÖªºÄÊ± = ¦²(ÄÚ´æ²Ù×÷Ê±¼ä)
-Êµ¼Ê·Ö½â:
-- ÄÚ´æÐÞ¸Ä: 100 ¡Á 7.4¦Ìs = 740¦Ìs
-- ¶ÓÁÐÈë¶Ó: 100 ¡Á 1¦Ìs = 100¦Ìs
-- Òì²½Í¨Öª: 100 ¡Á 0.1¦Ìs = 10¦Ìs
+AStructæ¨¡åž‹ï¼ˆå¼‚æ­¥é›¶é˜»å¡žï¼‰
+ç”¨æˆ·æ„ŸçŸ¥è€—æ—¶ = Î£(å†…å­˜æ“ä½œæ—¶é—´)
+å®žé™…åˆ†è§£:
+- å†…å­˜ä¿®æ”¹: 100 Ã— 7.4Î¼s = 740Î¼s
+- é˜Ÿåˆ—å…¥é˜Ÿ: 100 Ã— 1Î¼s = 100Î¼s
+- å¼‚æ­¥é€šçŸ¥: 100 Ã— 0.1Î¼s = 10Î¼s
 
 # API Performance Test
 ## System Stress Environment
@@ -67,23 +69,23 @@ AStructÄ£ÐÍ£¨Òì²½Áã×èÈû£©
 ```cpp
 // Test 1: Basic Read Performance (First-time + Cache)
 for(int i=0; i<100; i++) {
-    as.getvalue("T","A",std::to_string(i));  // First read: 525¦Ìs total for 100 ops
+    as.getvalue("T","A",std::to_string(i));  // First read: 525Î¼s total for 100 ops
 }
-for(int i=0; i<100; i++) {                   // Cache hit: 8¦Ìs total for 100 ops
+for(int i=0; i<100; i++) {                   // Cache hit: 8Î¼s total for 100 ops
     as.getvalue("T","A",std::to_string(i));
 }
 
 // Test 2: Long Key Performance Validation
-for(int i=0; i<100; i++) {                   // Long key, first read: 952¦Ìs total for 100 ops
+for(int i=0; i<100; i++) {                   // Long key, first read: 952Î¼s total for 100 ops
     as.getvalue("T","A",std::to_string(i)+"long_txt_key_test");
 }
-for(int i=0; i<100; i++) {                   // Long key, cache hit: 11¦Ìs total for 100 ops
+for(int i=0; i<100; i++) {                   // Long key, cache hit: 11Î¼s total for 100 ops
     as.getvalue("T","A",std::to_string(i)+"long_txt_key_test");
 }
 
 // Test 3: Pure In-Memory Modification Performance
-as.addkey("T","A","key","value");           // Single addkey: ~10¦Ìs
-for(int i=0; i<100; i++) {                   // 100 modifications: 753¦Ìs total
+as.addkey("T","A","key","value");           // Single addkey: ~10Î¼s
+for(int i=0; i<100; i++) {                   // 100 modifications: 753Î¼s total
     as.changeValue("T","A","key",std::to_string(i));
 }
 
@@ -93,22 +95,22 @@ for(int i=0; i<100; i++) {                   // Worst-case: triggers 200 file wr
                    "configs/"+std::to_string(i)+".txt", true);
 }
 as.getvalue("T","A","key");                  // Final verification: outputs "99"
-                                             // Total foreground perceived time: 1026¦Ìs
+                                             // Total foreground perceived time: 1026Î¼s
 
                                              // Background monitoring in VS2026 showed ~10 seconds of actual I/O activity.
                                              // Due to lower memory frequency (3600MHz) and heavy IO contention, the background duration may be imprecise.
-                                             // However, the foreground perception remained only 1026¦Ìs.
+                                             // However, the foreground perception remained only 1026Î¼s.
 
 // Test 5: Batch Creation Test
-for(int i=0; i<100; i++) {                   // 100 addkey operations: 1000¦Ìs total
+for(int i=0; i<100; i++) {                   // 100 addkey operations: 1000Î¼s total
     as.addkey("T","A",std::to_string(i),std::to_string(i));
 }
 AStruct Model (Asynchronous Non-Blocking)
-User-perceived duration = ¦²(In-memory operation time)
+User-perceived duration = Î£(In-memory operation time)
 Actual decomposition:
 
-In-memory modifications: 100 ¡Á 7.4¦Ìs = 740¦Ìs
+In-memory modifications: 100 Ã— 7.4Î¼s = 740Î¼s
 
-Queue enqueuing: 100 ¡Á 1¦Ìs = 100¦Ìs
+Queue enqueuing: 100 Ã— 1Î¼s = 100Î¼s
 
-Asynchronous notification: 100 ¡Á 0.1¦Ìs = 10¦Ìs
+Asynchronous notification: 100 Ã— 0.1Î¼s = 10Î¼s
