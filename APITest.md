@@ -56,6 +56,32 @@ AStruct模型（异步零阻塞）
 - 内存修改: 100 × 7.4μs = 740μs
 - 队列入队: 100 × 1μs = 100μs
 - 异步通知: 100 × 0.1μs = 10μs
+
+当前AList性能测试
+std::string bp = "@array@[@array@[父类,@array@[摄像头,x=0,y=120,z=0,r=120,距离=102],@array@[胶囊体,mesh=:::/player.one]],atk=100,血量=100/最大血量=150,@array@[hp.type=int,name.type=Fstring/string]]";
+std::string temp;
+    auto start = std::chrono::high_resolution_clock::now();   
+    AList list = AList::autoparse(AStruct::parseArray(bp));   
+    temp = list[0].Go()[2].Go()[1].Parse();   
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration_us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    std::cout << "延迟: " << duration_us.count() << "  μs" << std::endl;
+    结果是8us
+    std::cout << "超级数组解析结果:" << temp;
+    结果是K:\Cplusplus_pro\AStruct_test\AStruct_test\x64\Release/player.one
+构造时性能
+	 AList list,lantu,camera,mesh,type;   
+    auto start = std::chrono::high_resolution_clock::now();
+    list << (lantu << "父类")
+        << (camera << "摄像头" << "x=0" << "y=120" << "z=0" << "r=120" << "距离=102")
+        << (mesh << "胶囊体" << "mesh=:::/player.one")
+        << "atk=100" << "血量=100/最大血量=150"
+        << (type << "hp.type=int" << "name.type=Fstring/string");
+    list.toArray();
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration_us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    std::cout << "延迟: " << duration_us.count() << "  μs" << std::endl;
+    结果输出6us
 ```
 
 # API Performance Test
@@ -115,3 +141,31 @@ In-memory modifications: 100 × 7.4μs = 740μs
 Queue enqueuing: 100 × 1μs = 100μs
 
 Asynchronous notification: 100 × 0.1μs = 10μs
+
+AList-performance test:
+std::string bp = "@array@[@array@[parent,@array@[camera,x=0,y=120,z=0,r=120,distance=102],@array@[actor,mesh=:::/player.one]],atk=100,hp=100/maxhp=150,@array@[hp.type=int,name.type=Fstring/string]]";
+std::string temp;
+    auto start = std::chrono::high_resolution_clock::now();   
+    AList list = AList::autoparse(AStruct::parseArray(bp));   
+    temp = list[0].Go()[2].Go()[1].Parse();   
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration_us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    std::cout << "延迟: " << duration_us.count() << "  μs" << std::endl;
+    结果是8us
+    std::cout << "超级数组解析结果:" << temp;
+    # result: K:\Cplusplus_pro\AStruct_test\AStruct_test\x64\Release/player.one
+
+When Building's performance:
+	 AList list,lantu,camera,mesh,type;   
+    auto start = std::chrono::high_resolution_clock::now();
+    list << (lantu << "parent")
+        << (camera << "camera" << "x=0" << "y=120" << "z=0" << "r=120" << "distance=102")
+        << (mesh << "actor" << "mesh=:::/player.one")
+        << "atk=100" << "hp=100/maxhp=150"
+        << (type << "hp.type=int" << "name.type=Fstring/string");
+    list.toArray();
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration_us = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    std::cout << "need: " << duration_us.count() << "  μs" << std::endl;
+    result out 6us
+```
