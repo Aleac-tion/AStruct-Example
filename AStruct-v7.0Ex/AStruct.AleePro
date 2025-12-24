@@ -1,0 +1,18 @@
+#实际上只要是文本都可以存储AStruct内容，后缀无关
+{
+[title]:Base
+    {
+    [header]:files
+        {
+file=@array@[K:\QT_pro\AleacPtor\Ptor\Ptor.sln,K:\QT_pro\AleacPtor\Ptor\main.cpp,K:\QT_pro\AleacPtor\Ptor\Ptor.h,K:\QT_pro\AleacPtor\Ptor\Ptor.ui,K:\QT_pro\AleacPtor\Ptor\Ptor.qrc,K:\QT_pro\AleacPtor\Ptor\Ptor.vcxproj,K:\QT_pro\AleacPtor\Ptor\Ptor.vcxproj.filters,K:\QT_pro\AleacPtor\Ptor\Ptor.vcxproj.user,K:\QT_pro\AleacPtor\Ptor\AleacSS.lib,K:\LIB\AleacSS\AleacLIB.h,K:\LIB\AStruct\x64\Debug\AStruct.lib,K:\LIB\AStruct\AStruct.h,K:\LIB\AStruct\include.h]
+dir=@array@[K:\QT_pro\AleacPtor\Ptor\x64\Debug]
+        }
+    }[]
+    {
+    [header]:config
+        {
+        path=K:\QT_pro\AleeUpTool\x64\Debug\project\Ptor
+        core=Ptor
+        }
+    }[]
+};
