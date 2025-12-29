@@ -192,12 +192,14 @@ changevalue("title","header",int index,"datas","path");
 通过实战，发现由于内存形态和AStruct内容一模一样，但因为CPU或者Windows10+的优化导致内存膨胀很可能远低于1.0%
 通过实战，修复了一部分小逻辑
 
-模型原理 标准修改一次
-as.loaddata("xxx.Astruct");
-as.changevalue("title","header","key","value");
-         
-		 一次内存映射->纯内存->内存内容被修改(已完成) <-结束-> 触发异步写入将需要存入的内容任务加入后台队列(无感知/无需管理) 
-		 
-		 总共0次拷贝，1次原子修改，1次触发异步原子后台写入
-
-//该产品为我个人开发的第一个库，不喜勿喷！
+# "v9.2-2025-12-17-OPT"
+采用了vs2026最新的编译器和标准库配合VS引擎内置的Copilot和智能体优化,使用了C++20标准(原C++17)
+优化了部分内存操作和字符串操作,提升了绝大部分性能
+使用了更多的constexpr和consteval进行编译期计算,减少了运行期的计算压力    
+loaddata()彻底解除IO堵塞,采用内存映射+流失读取,内存膨胀特殊化处理。公式如下
+•	小文件（<= MMAP_THRESHOLD = 256 KB，当前实现走映射分支）：峰值内存约为映射视图 + 目标字符串 ≤ 2 × file_size（再加上少量 std::string/堆元数据），所以膨胀比约 ≤ 2.0。
+•	大文件（> MMAP_THRESHOLD，当前实现走流式按块处理）：峰值内存 ≈ file_size + CHUNK + 少量开销，膨胀比约 ≈ 1 + CHUNK / file_size。CHUNK 当前值为 1 MB。
+适用于vs2022及更早版本,但性能提升,建议使用vs2022及以下平台
+提升了所有index索引的性能,包括getvalue index版本 changevalue index版本 delkey index版本 约 200% 提升
+版本V9.0将会成为最后一次VS2022工具集更新并封装公开库，后续将会以VS2026版本的最新工具(最低v145)集迭代为主!!!
+经过测试,当前AStruct.lib将在VS2026以及slnx项目一定情况下出现LNK错误如QT VS插件,所有sln项目已开始重构到slnx请关注AStruct V10(未公开)版本
